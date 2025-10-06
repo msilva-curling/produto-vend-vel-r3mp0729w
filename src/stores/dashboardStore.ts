@@ -1,10 +1,15 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
-import { Dashboard, ShareSetting } from '@/types/dashboard'
+import { Dashboard, ShareSetting, Widget } from '@/types/dashboard'
+import { Template } from '@/types/template'
 
 interface DashboardState {
   dashboards: Dashboard[]
-  addDashboard: (title: string, ownerId: string) => Dashboard
+  addDashboard: (
+    title: string,
+    ownerId: string,
+    template?: Template,
+  ) => Dashboard
   updateDashboard: (dashboard: Dashboard) => void
   deleteDashboard: (id: string) => void
   getDashboardById: (id: string) => Dashboard | undefined
@@ -51,15 +56,22 @@ export const useDashboardStore = create<DashboardState>()(
   persist(
     (set, get) => ({
       dashboards: initialDashboards,
-      addDashboard: (title, ownerId) => {
+      addDashboard: (title, ownerId, template) => {
         const newDashboard: Dashboard = {
           id: new Date().getTime().toString(),
-          title,
+          title: template ? `Cópia de ${template.title}` : title,
           ownerId,
           lastModified: new Date().toISOString(),
-          previewUrl: `https://img.usecurling.com/p/600/400?q=abstract%20dashboard&seed=${new Date().getTime()}`,
-          layout: [],
-          widgets: [],
+          previewUrl: template
+            ? template.imageUrl
+            : `https://img.usecurling.com/p/600/400?q=abstract%20dashboard&seed=${new Date().getTime()}`,
+          layout: template ? JSON.parse(JSON.stringify(template.layout)) : [],
+          widgets: template
+            ? template.widgets.map((widget, index) => ({
+                ...widget,
+                id: `${new Date().getTime()}-${index}`,
+              }))
+            : [],
           sharing: [],
         }
         set((state) => ({ dashboards: [...state.dashboards, newDashboard] }))
