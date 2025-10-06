@@ -1,26 +1,49 @@
-/* Main App Component - Handles routing (using react-router-dom), query client and other providers - use this file to add all routes */
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from '@/components/ui/toaster'
 import { Toaster as Sonner } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import Index from './pages/Index'
 import NotFound from './pages/NotFound'
 import Layout from './components/Layout'
+import LoginPage from './pages/auth/Login'
+import SignUpPage from './pages/auth/SignUp'
+import TemplatesPage from './pages/dashboards/Templates'
+import EditorPage from './pages/dashboards/Editor'
+import ViewerPage from './pages/dashboards/Viewer'
+import SettingsPage from './pages/Settings'
+import HelpPage from './pages/Help'
+import { useAuthStore } from './stores/authStore'
+import { ReactNode } from 'react'
 
-// ONLY IMPORT AND RENDER WORKING PAGES, NEVER ADD PLACEHOLDER COMPONENTS OR PAGES IN THIS FILE
-// AVOID REMOVING ANY CONTEXT PROVIDERS FROM THIS FILE (e.g. TooltipProvider, Toaster, Sonner)
+const ProtectedRoute = ({ children }: { children: ReactNode }) => {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />
+  }
+  return children
+}
 
 const App = () => (
-  <BrowserRouter
-    future={{ v7_startTransition: false, v7_relativeSplatPath: false }}
-  >
+  <BrowserRouter>
     <TooltipProvider>
       <Toaster />
       <Sonner />
       <Routes>
-        <Route element={<Layout />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUpPage />} />
+        <Route
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES MUST BE ADDED HERE */}
+          <Route path="/templates" element={<TemplatesPage />} />
+          <Route path="/editor/:id" element={<EditorPage />} />
+          <Route path="/viewer/:id" element={<ViewerPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/help" element={<HelpPage />} />
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>
