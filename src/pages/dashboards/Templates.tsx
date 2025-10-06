@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { useDashboardStore } from '@/stores/dashboardStore'
+import { useAuthStore } from '@/stores/authStore'
 import { toast } from '@/hooks/use-toast'
 
 const templates = [
@@ -34,9 +35,18 @@ const templates = [
 export default function TemplatesPage() {
   const navigate = useNavigate()
   const addDashboard = useDashboardStore((state) => state.addDashboard)
+  const { user } = useAuthStore()
 
   const handleUseTemplate = (title: string) => {
-    const newDashboard = addDashboard(`Cópia de ${title}`)
+    if (!user) {
+      toast({
+        title: 'Erro',
+        description: 'Você precisa estar logado para usar um modelo.',
+        variant: 'destructive',
+      })
+      return
+    }
+    const newDashboard = addDashboard(`Cópia de ${title}`, user.id)
     toast({
       title: 'Modelo duplicado!',
       description: `O dashboard "${newDashboard.title}" foi criado.`,

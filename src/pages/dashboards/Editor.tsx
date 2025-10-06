@@ -15,10 +15,12 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Label } from '@/components/ui/label'
+import { useAuthStore } from '@/stores/authStore'
 
 export default function EditorPage() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const { user } = useAuthStore()
   const { getDashboardById, updateDashboard, addDashboard } =
     useDashboardStore()
   const { dataSources } = useDataSourceStore()
@@ -34,30 +36,32 @@ export default function EditorPage() {
       } else {
         navigate('/404')
       }
-    } else {
+    } else if (user) {
       const newDashboard: Omit<Dashboard, 'id'> = {
         title: 'Novo Dashboard',
+        ownerId: user.id,
         lastModified: '',
         previewUrl: '',
         layout: [],
         widgets: [],
+        sharing: [],
       }
       setDashboard({ ...newDashboard, id: 'new' })
       setTitle(newDashboard.title)
     }
-  }, [id, getDashboardById, navigate])
+  }, [id, getDashboardById, navigate, user])
 
   const handleSave = () => {
-    if (!dashboard) return
+    if (!dashboard || !user) return
     let savedDashboard
     if (dashboard.id === 'new') {
-      savedDashboard = addDashboard(title)
+      savedDashboard = addDashboard(title, user.id)
     } else {
       savedDashboard = { ...dashboard, title }
       updateDashboard(savedDashboard)
     }
     toast({ title: 'Dashboard salvo com sucesso!' })
-    if (dashboard.id === 'new') {
+    if (dashboard.id === 'new' && savedDashboard) {
       navigate(`/editor/${savedDashboard.id}`, { replace: true })
     }
   }

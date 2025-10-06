@@ -10,17 +10,56 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useDashboardStore } from '@/stores/dashboardStore'
+import { useAuthStore } from '@/stores/authStore'
 import { DashboardCard } from '@/components/dashboard/DashboardCard'
 import { EmptyState } from '@/components/dashboard/EmptyState'
+import { Dashboard } from '@/types/dashboard'
+
+const DashboardGrid = ({ dashboards }: { dashboards: Dashboard[] }) => {
+  if (dashboards.length === 0) {
+    return <EmptyState />
+  }
+
+  return (
+    <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      {dashboards.map((dashboard, index) => (
+        <div
+          key={dashboard.id}
+          className="animate-fade-in-up"
+          style={{ animationDelay: `${index * 100}ms` }}
+        >
+          <DashboardCard dashboard={dashboard} />
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function Index() {
   const navigate = useNavigate()
-  const dashboards = useDashboardStore((state) => state.dashboards)
+  const { user } = useAuthStore()
+  const { dashboards, addDashboard } = useDashboardStore()
   const [searchTerm, setSearchTerm] = useState('')
   const [sortOrder, setSortOrder] = useState('recent')
+  const [activeTab, setActiveTab] = useState('my-dashboards')
 
-  const filteredDashboards = dashboards
+  const myDashboards = dashboards.filter((d) => d.ownerId === user?.id)
+  const sharedDashboards = dashboards.filter((d) =>
+    d.sharing.some((s) => s.userId === user?.id),
+  )
+
+  const handleCreateDashboard = () => {
+    if (!user) return
+    const newDashboard = addDashboard('Dashboard Sem Título', user.id)
+    navigate(`/editor/${newDashboard.id}`)
+  }
+
+  const dashboardsToShow =
+    activeTab === 'my-dashboards' ? myDashboards : sharedDashboards
+
+  const filteredAndSortedDashboards = dashboardsToShow
     .filter((d) => d.title.toLowerCase().includes(searchTerm.toLowerCase()))
     .sort((a, b) => {
       if (sortOrder === 'recent') {
@@ -57,67 +96,65 @@ export default function Index() {
           <p className="text-muted-foreground mt-4 text-lg max-w-2xl">
             Visualize, gerencie e dê vida aos seus dados. Tudo em um só lugar.
           </p>
-          <Button
-            size="lg"
-            className="mt-8"
-            onClick={() => navigate('/editor/new')}
-          >
+          <Button size="lg" className="mt-8" onClick={handleCreateDashboard}>
             <Plus className="mr-2 h-5 w-5" />
             Criar Novo Dashboard
           </Button>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-8 p-4 bg-background rounded-lg shadow-sm">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            placeholder="Pesquisar por nome..."
-            className="pl-10 h-12 text-base"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          {searchTerm && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
-              onClick={() => setSearchTerm('')}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+      <Tabs
+        defaultValue="my-dashboards"
+        className="w-full"
+        onValueChange={setActiveTab}
+      >
+        <TabsList className="grid w-full grid-cols-2 md:w-[400px] mb-6">
+          <TabsTrigger value="my-dashboards">Meus Dashboards</TabsTrigger>
+          <TabsTrigger value="shared-with-me">
+            Compartilhados Comigo
+          </TabsTrigger>
+        </TabsList>
+        <div className="flex flex-col md:flex-row gap-4 mb-8 p-4 bg-background rounded-lg shadow-sm">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Input
+              placeholder="Pesquisar por nome..."
+              className="pl-10 h-12 text-base"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
+                onClick={() => setSearchTerm('')}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <ArrowDownUp className="h-5 w-5 text-muted-foreground" />
+            <Select value={sortOrder} onValueChange={setSortOrder}>
+              <SelectTrigger className="w-full md:w-[200px] h-12 text-base">
+                <SelectValue placeholder="Ordenar por" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recent">Mais Recentes</SelectItem>
+                <SelectItem value="oldest">Mais Antigos</SelectItem>
+                <SelectItem value="name">Por Nome (A-Z)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <ArrowDownUp className="h-5 w-5 text-muted-foreground" />
-          <Select value={sortOrder} onValueChange={setSortOrder}>
-            <SelectTrigger className="w-full md:w-[200px] h-12 text-base">
-              <SelectValue placeholder="Ordenar por" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="recent">Mais Recentes</SelectItem>
-              <SelectItem value="oldest">Mais Antigos</SelectItem>
-              <SelectItem value="name">Por Nome (A-Z)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {filteredDashboards.length > 0 ? (
-        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {filteredDashboards.map((dashboard, index) => (
-            <div
-              key={dashboard.id}
-              className="animate-fade-in-up"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <DashboardCard dashboard={dashboard} />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <EmptyState />
-      )}
+        <TabsContent value="my-dashboards">
+          <DashboardGrid dashboards={filteredAndSortedDashboards} />
+        </TabsContent>
+        <TabsContent value="shared-with-me">
+          <DashboardGrid dashboards={filteredAndSortedDashboards} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 }

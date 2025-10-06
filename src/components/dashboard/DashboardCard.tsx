@@ -24,6 +24,8 @@ import {
 import { Dashboard } from '@/types/dashboard'
 import { useDashboardStore } from '@/stores/dashboardStore'
 import { toast } from '@/hooks/use-toast'
+import { ShareDialog } from './ShareDialog'
+import { useAuthStore } from '@/stores/authStore'
 
 interface DashboardCardProps {
   dashboard: Dashboard
@@ -31,8 +33,12 @@ interface DashboardCardProps {
 
 export const DashboardCard = ({ dashboard }: DashboardCardProps) => {
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false)
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
   const deleteDashboard = useDashboardStore((state) => state.deleteDashboard)
+  const { user } = useAuthStore()
   const navigate = useNavigate()
+
+  const isOwner = dashboard.ownerId === user?.id
 
   const handleDelete = () => {
     deleteDashboard(dashboard.id)
@@ -87,28 +93,41 @@ export const DashboardCard = ({ dashboard }: DashboardCardProps) => {
               >
                 <Eye className="mr-2 h-4 w-4" /> Visualizar
               </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => navigate(`/editor/${dashboard.id}`)}
-              >
-                <Pencil className="mr-2 h-4 w-4" /> Editar
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  /* Mock share */ toast({ title: 'Link copiado!' })
-                }}
-              >
-                <Share2 className="mr-2 h-4 w-4" /> Compartilhar
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => setIsDeleteAlertOpen(true)}
-                className="text-destructive focus:text-destructive focus:bg-destructive/10"
-              >
-                <Trash2 className="mr-2 h-4 w-4" /> Excluir
-              </DropdownMenuItem>
+              {isOwner && (
+                <DropdownMenuItem
+                  onClick={() => navigate(`/editor/${dashboard.id}`)}
+                >
+                  <Pencil className="mr-2 h-4 w-4" /> Editar
+                </DropdownMenuItem>
+              )}
+              {isOwner && (
+                <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  onClick={() => setIsShareDialogOpen(true)}
+                >
+                  <Share2 className="mr-2 h-4 w-4" /> Compartilhar
+                </DropdownMenuItem>
+              )}
+              {isOwner && (
+                <DropdownMenuItem
+                  onClick={() => setIsDeleteAlertOpen(true)}
+                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" /> Excluir
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </Card>
+
+      {isOwner && (
+        <ShareDialog
+          dashboard={dashboard}
+          isOpen={isShareDialogOpen}
+          onOpenChange={setIsShareDialogOpen}
+        />
+      )}
 
       <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
         <AlertDialogContent>

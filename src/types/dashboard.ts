@@ -1,10 +1,19 @@
 export interface Dashboard {
   id: string
   title: string
+  ownerId: string
   lastModified: string
   previewUrl: string
   layout: WidgetLayout[]
   widgets: Widget[]
+  sharing: ShareSetting[]
+}
+
+export type PermissionLevel = 'view-only' | 'edit'
+
+export interface ShareSetting {
+  userId: string
+  permission: PermissionLevel
 }
 
 export interface WidgetLayout {
