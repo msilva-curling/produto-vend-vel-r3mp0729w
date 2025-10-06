@@ -30,7 +30,7 @@ export const Header = () => {
             alt="Logo"
             className="h-6 w-6"
           />
-          <span className="font-bold">UniversalDash</span>
+          <span className="font-bold">Centraldash</span>
         </Link>
         <div className="flex flex-1 items-center justify-end">
           <div className="flex items-center space-x-4">
