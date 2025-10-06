@@ -44,7 +44,7 @@ export const AppSidebar = () => {
             alt="Logo"
             className="h-6 w-6 transition-transform duration-300 group-hover:rotate-12"
           />
-          {!isCollapsed && <span className="font-bold">UniversalDash</span>}
+          {!isCollapsed && <span className="font-bold">DAshbrabo</span>}
         </Link>
       </div>
       <div className="flex-1 py-4">
