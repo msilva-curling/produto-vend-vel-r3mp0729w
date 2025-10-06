@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { Button } from '@/components/ui/button'
 import {
@@ -22,6 +21,7 @@ import {
 } from '@/components/ui/form'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from '@/hooks/use-toast'
+import { customZodResolver as zodResolver } from '@/lib/zod-resolver'
 
 const signupSchema = z.object({
   name: z
