@@ -6,19 +6,27 @@ export const EmptyState = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-xl h-full min-h-[400px]">
-      <div className="mb-4">
+    <div className="flex flex-col items-center justify-center text-center p-8 bg-background rounded-xl h-full min-h-[400px] animate-fade-in">
+      <div className="mb-6">
         <img
-          src="https://img.usecurling.com/p/128/128?q=empty%20box&color=gray"
-          alt="Caixa vazia"
-          className="opacity-50"
+          src="https://img.usecurling.com/p/160/160?q=data%20visualization&color=indigo"
+          alt="Data visualization illustration"
+          className="opacity-75"
         />
       </div>
       <h2 className="text-2xl font-semibold text-foreground mb-2">
-        Você ainda não criou nenhum dashboard.
+        Sua tela de dashboards está vazia
       </h2>
-      <p className="text-muted-foreground mb-6">Que tal começar um novo?</p>
-      <Button size="lg" onClick={() => navigate('/editor/new')}>
+      <p className="text-muted-foreground mb-6 max-w-md">
+        Comece a transformar seus dados em insights visuais. Crie seu primeiro
+        dashboard agora mesmo.
+      </p>
+      <Button
+        size="lg"
+        onClick={() => navigate('/editor/new')}
+        className="animate-fade-in-up"
+        style={{ animationDelay: '0.2s' }}
+      >
         <Plus className="mr-2 h-5 w-5" />
         Criar Meu Primeiro Dashboard
       </Button>

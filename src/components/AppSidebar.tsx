@@ -6,6 +6,7 @@ import {
   Star,
   Settings,
   HelpCircle,
+  ChevronRight,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -32,10 +33,20 @@ export const AppSidebar = () => {
   return (
     <aside
       className={cn(
-        'relative hidden h-screen border-r bg-background transition-width duration-300 ease-in-out md:flex flex-col',
+        'relative hidden h-screen border-r bg-background transition-all duration-300 ease-in-out md:flex flex-col group',
         isCollapsed ? 'w-20' : 'w-64',
       )}
     >
+      <div className="flex items-center h-16 border-b px-6">
+        <Link to="/" className="flex items-center space-x-2">
+          <img
+            src="https://img.usecurling.com/i?q=dashboard&color=indigo"
+            alt="Logo"
+            className="h-6 w-6 transition-transform duration-300 group-hover:rotate-12"
+          />
+          {!isCollapsed && <span className="font-bold">UniversalDash</span>}
+        </Link>
+      </div>
       <div className="flex-1 py-4">
         <nav className="flex flex-col items-center px-4 space-y-2">
           {navItems.map((item) => (
@@ -73,12 +84,11 @@ export const AppSidebar = () => {
           onClick={toggleSidebar}
           className="w-full flex justify-center"
         >
-          <ChevronLeft
-            className={cn(
-              'h-5 w-5 transition-transform',
-              isCollapsed && 'rotate-180',
-            )}
-          />
+          {isCollapsed ? (
+            <ChevronRight className="h-5 w-5" />
+          ) : (
+            <ChevronLeft className="h-5 w-5" />
+          )}
         </Button>
       </div>
     </aside>
