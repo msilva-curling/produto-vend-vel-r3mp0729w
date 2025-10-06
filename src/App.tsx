@@ -16,6 +16,7 @@ import { useAuthStore } from './stores/authStore'
 import { ReactNode } from 'react'
 import SettingsLayout from './pages/settings/Layout'
 import DataSourcesPage from './pages/settings/DataSources'
+import ReportsPage from './pages/settings/Reports'
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="/settings" element={<SettingsLayout />}>
             <Route index element={<SettingsPage />} />
             <Route path="data-sources" element={<DataSourcesPage />} />
+            <Route path="reports" element={<ReportsPage />} />
           </Route>
         </Route>
         <Route path="*" element={<NotFound />} />

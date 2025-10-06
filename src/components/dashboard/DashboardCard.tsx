@@ -2,7 +2,14 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { Eye, Pencil, Share2, Trash2, MoreVertical } from 'lucide-react'
+import {
+  Eye,
+  Pencil,
+  Share2,
+  Trash2,
+  MoreVertical,
+  CalendarClock,
+} from 'lucide-react'
 import { Card, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,6 +17,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 import {
   AlertDialog,
@@ -26,6 +34,7 @@ import { useDashboardStore } from '@/stores/dashboardStore'
 import { toast } from '@/hooks/use-toast'
 import { ShareDialog } from './ShareDialog'
 import { useAuthStore } from '@/stores/authStore'
+import { ScheduleReportDialog } from './ScheduleReportDialog'
 
 interface DashboardCardProps {
   dashboard: Dashboard
@@ -34,6 +43,7 @@ interface DashboardCardProps {
 export const DashboardCard = ({ dashboard }: DashboardCardProps) => {
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false)
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false)
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false)
   const deleteDashboard = useDashboardStore((state) => state.deleteDashboard)
   const { user } = useAuthStore()
   const navigate = useNavigate()
@@ -110,6 +120,15 @@ export const DashboardCard = ({ dashboard }: DashboardCardProps) => {
               )}
               {isOwner && (
                 <DropdownMenuItem
+                  onSelect={(e) => e.preventDefault()}
+                  onClick={() => setIsScheduleDialogOpen(true)}
+                >
+                  <CalendarClock className="mr-2 h-4 w-4" /> Agendar Relatório
+                </DropdownMenuItem>
+              )}
+              {isOwner && <DropdownMenuSeparator />}
+              {isOwner && (
+                <DropdownMenuItem
                   onClick={() => setIsDeleteAlertOpen(true)}
                   className="text-destructive focus:text-destructive focus:bg-destructive/10"
                 >
@@ -126,6 +145,13 @@ export const DashboardCard = ({ dashboard }: DashboardCardProps) => {
           dashboard={dashboard}
           isOpen={isShareDialogOpen}
           onOpenChange={setIsShareDialogOpen}
+        />
+      )}
+      {isOwner && (
+        <ScheduleReportDialog
+          dashboardId={dashboard.id}
+          isOpen={isScheduleDialogOpen}
+          onOpenChange={setIsScheduleDialogOpen}
         />
       )}
 

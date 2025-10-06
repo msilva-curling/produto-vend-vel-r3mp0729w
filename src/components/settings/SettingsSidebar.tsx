@@ -1,11 +1,16 @@
 import { Link, useLocation } from 'react-router-dom'
-import { User, Database } from 'lucide-react'
+import { User, Database, CalendarClock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 
 const navItems = [
   { to: '/settings', label: 'Perfil', icon: User },
   { to: '/settings/data-sources', label: 'Fontes de Dados', icon: Database },
+  {
+    to: '/settings/reports',
+    label: 'Relatórios Agendados',
+    icon: CalendarClock,
+  },
 ]
 
 export const SettingsSidebar = () => {

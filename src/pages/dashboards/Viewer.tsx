@@ -1,10 +1,17 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { Pencil, Share2, Download, RefreshCw } from 'lucide-react'
+import {
+  Pencil,
+  Share2,
+  Download,
+  RefreshCw,
+  CalendarClock,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useDashboardStore } from '@/stores/dashboardStore'
 import { useEffect, useState } from 'react'
 import { Dashboard } from '@/types/dashboard'
 import { toast } from '@/hooks/use-toast'
+import { ScheduleReportDialog } from '@/components/dashboard/ScheduleReportDialog'
 
 export default function ViewerPage() {
   const { id } = useParams()
@@ -12,6 +19,7 @@ export default function ViewerPage() {
   const getDashboardById = useDashboardStore((state) => state.getDashboardById)
   const [dashboard, setDashboard] = useState<Dashboard | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -38,68 +46,81 @@ export default function ViewerPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-slate-100">
-      <header className="flex items-center justify-between p-4 bg-white border-b sticky top-0 z-10">
-        <h1 className="text-xl font-semibold">{dashboard.title}</h1>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-          >
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
-            />
-            {isRefreshing ? 'Atualizando...' : 'Atualizar'}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/editor/${dashboard.id}`)}
-          >
-            <Pencil className="mr-2 h-4 w-4" /> Editar
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => toast({ title: 'Link copiado!' })}
-          >
-            <Share2 className="mr-2 h-4 w-4" /> Compartilhar
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => toast({ title: 'Gerando PDF...' })}
-          >
-            <Download className="mr-2 h-4 w-4" /> Exportar
-          </Button>
-        </div>
-      </header>
-      <main className="flex-1 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white p-4 rounded-lg shadow col-span-2 h-64 flex flex-col">
-            <h3 className="font-semibold mb-2">Vendas por Região</h3>
-            <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
-              (Gráfico de Barras com dados da API de Vendas)
-            </p>
+    <>
+      <div className="flex flex-col min-h-screen bg-slate-100">
+        <header className="flex items-center justify-between p-4 bg-white border-b sticky top-0 z-10">
+          <h1 className="text-xl font-semibold">{dashboard.title}</h1>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw
+                className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+              />
+              {isRefreshing ? 'Atualizando...' : 'Atualizar'}
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => setIsScheduleDialogOpen(true)}
+            >
+              <CalendarClock className="mr-2 h-4 w-4" /> Agendar
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/editor/${dashboard.id}`)}
+            >
+              <Pencil className="mr-2 h-4 w-4" /> Editar
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => toast({ title: 'Link copiado!' })}
+            >
+              <Share2 className="mr-2 h-4 w-4" /> Compartilhar
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => toast({ title: 'Gerando PDF...' })}
+            >
+              <Download className="mr-2 h-4 w-4" /> Exportar
+            </Button>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow h-64 flex flex-col">
-            <h3 className="font-semibold mb-2">Total de Vendas</h3>
-            <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
-              (KPI Numérico com dados da API de Vendas)
-            </p>
+        </header>
+        <main className="flex-1 p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white p-4 rounded-lg shadow col-span-2 h-64 flex flex-col">
+              <h3 className="font-semibold mb-2">Vendas por Região</h3>
+              <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
+                (Gráfico de Barras com dados da API de Vendas)
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow h-64 flex flex-col">
+              <h3 className="font-semibold mb-2">Total de Vendas</h3>
+              <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
+                (KPI Numérico com dados da API de Vendas)
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow h-64 flex flex-col">
+              <h3 className="font-semibold mb-2">Conversão de Leads</h3>
+              <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
+                (Gráfico de Pizza com dados da API de Marketing)
+              </p>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow col-span-4 h-80 flex flex-col">
+              <h3 className="font-semibold mb-2">Histórico de Vendas</h3>
+              <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
+                (Gráfico de Linha com dados da API de Vendas)
+              </p>
+            </div>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow h-64 flex flex-col">
-            <h3 className="font-semibold mb-2">Conversão de Leads</h3>
-            <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
-              (Gráfico de Pizza com dados da API de Marketing)
-            </p>
-          </div>
-          <div className="bg-white p-4 rounded-lg shadow col-span-4 h-80 flex flex-col">
-            <h3 className="font-semibold mb-2">Histórico de Vendas</h3>
-            <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
-              (Gráfico de Linha com dados da API de Vendas)
-            </p>
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+      <ScheduleReportDialog
+        dashboardId={dashboard.id}
+        isOpen={isScheduleDialogOpen}
+        onOpenChange={setIsScheduleDialogOpen}
+      />
+    </>
   )
 }
