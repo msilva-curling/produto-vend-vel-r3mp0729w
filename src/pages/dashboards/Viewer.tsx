@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { Pencil, Share2, Download } from 'lucide-react'
+import { Pencil, Share2, Download, RefreshCw } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useDashboardStore } from '@/stores/dashboardStore'
 import { useEffect, useState } from 'react'
@@ -11,6 +11,7 @@ export default function ViewerPage() {
   const navigate = useNavigate()
   const getDashboardById = useDashboardStore((state) => state.getDashboardById)
   const [dashboard, setDashboard] = useState<Dashboard | null>(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   useEffect(() => {
     if (id) {
@@ -23,8 +24,17 @@ export default function ViewerPage() {
     }
   }, [id, getDashboardById, navigate])
 
+  const handleRefresh = () => {
+    setIsRefreshing(true)
+    toast({ title: 'Atualizando dados...' })
+    setTimeout(() => {
+      setIsRefreshing(false)
+      toast({ title: 'Dados atualizados!' })
+    }, 1500)
+  }
+
   if (!dashboard) {
-    return <div>Carregando...</div> // Or a skeleton loader
+    return <div>Carregando...</div>
   }
 
   return (
@@ -32,6 +42,16 @@ export default function ViewerPage() {
       <header className="flex items-center justify-between p-4 bg-white border-b sticky top-0 z-10">
         <h1 className="text-xl font-semibold">{dashboard.title}</h1>
         <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+          >
+            <RefreshCw
+              className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`}
+            />
+            {isRefreshing ? 'Atualizando...' : 'Atualizar'}
+          </Button>
           <Button
             variant="outline"
             onClick={() => navigate(`/editor/${dashboard.id}`)}
@@ -54,14 +74,29 @@ export default function ViewerPage() {
       </header>
       <main className="flex-1 p-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Mock widgets */}
-          <div className="bg-white p-4 rounded-lg shadow col-span-2 h-64">
-            Widget 1
+          <div className="bg-white p-4 rounded-lg shadow col-span-2 h-64 flex flex-col">
+            <h3 className="font-semibold mb-2">Vendas por Região</h3>
+            <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
+              (Gráfico de Barras com dados da API de Vendas)
+            </p>
           </div>
-          <div className="bg-white p-4 rounded-lg shadow h-64">Widget 2</div>
-          <div className="bg-white p-4 rounded-lg shadow h-64">Widget 3</div>
-          <div className="bg-white p-4 rounded-lg shadow col-span-4 h-80">
-            Widget 4
+          <div className="bg-white p-4 rounded-lg shadow h-64 flex flex-col">
+            <h3 className="font-semibold mb-2">Total de Vendas</h3>
+            <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
+              (KPI Numérico com dados da API de Vendas)
+            </p>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow h-64 flex flex-col">
+            <h3 className="font-semibold mb-2">Conversão de Leads</h3>
+            <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
+              (Gráfico de Pizza com dados da API de Marketing)
+            </p>
+          </div>
+          <div className="bg-white p-4 rounded-lg shadow col-span-4 h-80 flex flex-col">
+            <h3 className="font-semibold mb-2">Histórico de Vendas</h3>
+            <p className="text-sm text-muted-foreground flex-1 flex items-center justify-center">
+              (Gráfico de Linha com dados da API de Vendas)
+            </p>
           </div>
         </div>
       </main>

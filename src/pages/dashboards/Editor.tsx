@@ -1,17 +1,27 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { Save, Eye, LogOut } from 'lucide-react'
+import { Save, Eye, LogOut, Database } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useDashboardStore } from '@/stores/dashboardStore'
 import { useEffect, useState } from 'react'
 import { Dashboard } from '@/types/dashboard'
 import { toast } from '@/hooks/use-toast'
+import { useDataSourceStore } from '@/stores/dataSourceStore'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Label } from '@/components/ui/label'
 
 export default function EditorPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { getDashboardById, updateDashboard, addDashboard } =
     useDashboardStore()
+  const { dataSources } = useDataSourceStore()
   const [dashboard, setDashboard] = useState<Dashboard | null>(null)
   const [title, setTitle] = useState('')
 
@@ -25,14 +35,14 @@ export default function EditorPage() {
         navigate('/404')
       }
     } else {
-      const newDashboard = {
-        id: 'new',
+      const newDashboard: Omit<Dashboard, 'id'> = {
         title: 'Novo Dashboard',
         lastModified: '',
         previewUrl: '',
         layout: [],
+        widgets: [],
       }
-      setDashboard(newDashboard)
+      setDashboard({ ...newDashboard, id: 'new' })
       setTitle(newDashboard.title)
     }
   }, [id, getDashboardById, navigate])
@@ -53,7 +63,7 @@ export default function EditorPage() {
   }
 
   if (!dashboard) {
-    return <div>Carregando...</div> // Or a skeleton loader
+    return <div>Carregando...</div>
   }
 
   return (
@@ -68,7 +78,11 @@ export default function EditorPage() {
           <Button onClick={handleSave}>
             <Save className="mr-2 h-4 w-4" /> Salvar
           </Button>
-          <Button variant="outline">
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/viewer/${dashboard.id}`)}
+            disabled={dashboard.id === 'new'}
+          >
             <Eye className="mr-2 h-4 w-4" /> Pré-visualizar
           </Button>
           <Button variant="outline" onClick={() => navigate('/')}>
@@ -79,14 +93,12 @@ export default function EditorPage() {
       <div className="flex flex-1 overflow-hidden">
         <aside className="w-64 bg-white p-4 border-r overflow-y-auto">
           <h2 className="text-lg font-semibold mb-4">Biblioteca de Widgets</h2>
-          {/* Widget library content goes here */}
           <p className="text-sm text-muted-foreground">
             Arraste widgets para o canvas.
           </p>
         </aside>
         <main className="flex-1 p-4 overflow-auto">
           <div className="bg-white h-full rounded-lg border border-dashed">
-            {/* Canvas content goes here */}
             <p className="text-center text-muted-foreground p-8">
               Área de Canvas
             </p>
@@ -96,10 +108,29 @@ export default function EditorPage() {
           <h2 className="text-lg font-semibold mb-4">
             Configurações do Widget
           </h2>
-          {/* Widget configuration panel content goes here */}
-          <p className="text-sm text-muted-foreground">
-            Selecione um widget para configurar.
-          </p>
+          <div className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              Selecione um widget para configurar.
+            </p>
+            <div className="space-y-2">
+              <Label>Fonte de Dados</Label>
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma fonte" />
+                </SelectTrigger>
+                <SelectContent>
+                  {dataSources.map((ds) => (
+                    <SelectItem key={ds.id} value={ds.id}>
+                      <div className="flex items-center">
+                        <Database className="h-4 w-4 mr-2" />
+                        {ds.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
         </aside>
       </div>
     </div>

@@ -14,6 +14,8 @@ import SettingsPage from './pages/Settings'
 import HelpPage from './pages/Help'
 import { useAuthStore } from './stores/authStore'
 import { ReactNode } from 'react'
+import SettingsLayout from './pages/settings/Layout'
+import DataSourcesPage from './pages/settings/DataSources'
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -42,8 +44,11 @@ const App = () => (
           <Route path="/templates" element={<TemplatesPage />} />
           <Route path="/editor/:id" element={<EditorPage />} />
           <Route path="/viewer/:id" element={<ViewerPage />} />
-          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/help" element={<HelpPage />} />
+          <Route path="/settings" element={<SettingsLayout />}>
+            <Route index element={<SettingsPage />} />
+            <Route path="data-sources" element={<DataSourcesPage />} />
+          </Route>
         </Route>
         <Route path="*" element={<NotFound />} />
       </Routes>

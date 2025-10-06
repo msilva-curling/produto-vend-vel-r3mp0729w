@@ -9,10 +9,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { useAuthStore } from '@/stores/authStore'
 
 export default function SettingsPage() {
+  const user = useAuthStore((state) => state.user)
+
   return (
-    <div className="container mx-auto py-8 px-4 max-w-screen-2xl">
+    <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">Configurações</h1>
         <p className="text-muted-foreground">
@@ -30,14 +33,14 @@ export default function SettingsPage() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Nome</Label>
-              <Input id="name" defaultValue="Usuário Exemplo" />
+              <Input id="name" defaultValue={user?.name} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                defaultValue="usuario.exemplo@email.com"
+                defaultValue={`${user?.name.replace(' ', '.').toLowerCase()}@email.com`}
                 disabled
               />
             </div>

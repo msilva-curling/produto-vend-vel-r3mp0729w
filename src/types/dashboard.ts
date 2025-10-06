@@ -4,6 +4,7 @@ export interface Dashboard {
   lastModified: string
   previewUrl: string
   layout: WidgetLayout[]
+  widgets: Widget[]
 }
 
 export interface WidgetLayout {
@@ -33,6 +34,6 @@ export interface Widget {
   id: string
   type: WidgetType
   title: string
-  dataSource: string // Mocked data source name
+  dataSourceId?: string
   config: Record<string, any>
 }
